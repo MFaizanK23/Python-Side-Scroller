@@ -20,7 +20,8 @@ while running:
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("purple")
 
-    pygame.draw.circle(screen, "red", player_pos, 40)
+    # pygame.draw.circle(screen, "red", player_pos, 40)
+    pygame.draw.rect(screen, "red", (player_pos[0], player_pos[1], 40, 40))
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
