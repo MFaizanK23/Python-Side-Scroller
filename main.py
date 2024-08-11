@@ -1,69 +1,109 @@
 # Example file showing a circle moving on screen
 import pygame
 
+
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
-clock = pygame.time.Clock()
-running = True
-dt = 0
-v = 10
-m = 1
-
+WIDTH, HEIGHT = 1280, 720
+FPS = 60
+player_velocity = 5
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Silly-Side-Scroller")
 player_pos = pygame.Vector2(40, 460)
 
-while running:
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+class Player(pygame.sprite.Sprite):
+    colour = (0, 255, 0)
+    mass = 1
+    def __init__(self, x, y, width, height):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.x_velocity = 0
+        self.y_velocity = 0
+        self.mask = None
+        self.direction = "left"
+        self.animation_count = 0
+        self.falling = 0
 
-    # fill the screen with a color to wipe away anything from last frame
-    screen.fill("purple")
+    def move(self, displacement_x, displacement_y):
+        self.rect.x += displacement_x
+        self.rect.y += displacement_y
 
-    # pygame.draw.circle(screen, "red", player_pos, 40)
-    pygame.draw.rect(screen, "red", (player_pos[0], player_pos[1], 40, 40))
-    pygame.draw.line(screen, "black", (0, 500), (1280, 500))
+    def move_left(self, velocity):
+        self.x_velocity = -velocity
+        if self.direction != "left":
+            self.direction = "left"
+            self.animation_count = 0
+
+    def move_right(self, velocity):
+        self.x_velocity = velocity
+        if self.direction != "right":
+            self.direction = "right"
+            self.animation_count = 0
+
+    def loop(self, fps):
+        self.y_velocity += min(1, (self.falling / fps) * self.mass)
+        self.move(self.x_velocity, self.y_velocity)
+
+        self.falling += 1
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.colour, self.rect)
 
 
+def get_background(name):
+    image = pygame.image.load(name)
+    _, _, width, height = image.get_rect()
+    tiles = []
+
+    for i in range(WIDTH // width + 1):
+        for j in range(HEIGHT // height + 1):
+            position = [i * width, j * height]
+            tiles.append(position)
+
+    return tiles, image
+
+
+def draw(SCREEN, background, bg_image, player):
+    for tile in background:
+        SCREEN.blit(bg_image, tile)
+
+    player.draw(SCREEN)
+
+    pygame.display.update()
+
+
+def handle_move(player):
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        F = (1 / 2) * m * (v ** 2)
 
-        # change in the y co-ordinate
-        player_pos[1] -= F
-
-        # decreasing velocity while going up and become negative while coming down
-        v = v - 1
-
-        # object reached its maximum height
-        if v < 0:
-            # negative sign is added to counter negative velocity
-            m = -1
-
-        # objected reaches its original state
-        if v == -6:
-            # setting original values to v and m
-            v = 10
-            m = 1
-
-
-
-
+    player.x_velocity = 0  # so when u let go u stop moving
     if keys[pygame.K_a]:
-        player_pos.x -= 300 * dt
+        player.move_left(player_velocity)
     if keys[pygame.K_d]:
-        player_pos.x += 300 * dt
+        player.move_right(player_velocity)
 
-    # flip() the display to put your work on screen
-    pygame.display.flip()
 
-    # limits FPS to 60
-    # dt is delta time in seconds since last frame, used for framerate-
-    # independent physics.
-    dt = clock.tick(60) / 1000
+def main(SCREEN):
+    clock = pygame.time.Clock()
+    background, bg_image = get_background("appleguy.jpg")
 
-pygame.quit()
+    player = Player(player_pos[0], player_pos[1], 40, 40)
+    running = True
+    while running:
+        clock.tick(FPS)
 
+        # poll for events
+        # pygame.QUIT event means the user clicked X to close your window
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                break
+
+        player.loop(FPS)
+        handle_move(player)
+        draw(SCREEN, background, bg_image, player)
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main(SCREEN)
