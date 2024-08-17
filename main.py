@@ -4,18 +4,33 @@ import pygame
 
 # pygame setup
 pygame.init()
-WIDTH, HEIGHT = 1280, 720
+WIDTH, HEIGHT = 1280, 920
 FPS = 60
 player_velocity = 5
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Silly-Side-Scroller")
-player_pos = pygame.Vector2(40, 460)
+player_pos = pygame.Vector2(40, 0)
+
+
+class Entity(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, name=None):
+        super().__init__()
+        self.rect = pygame.Rect(x, y, width, height)
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        self.width = width
+        self.height = height
+        self.name = name
+
+    def draw(self, SCREEN):
+        SCREEN.blit(self.image, (self.rect.x, self.rect.y))
 
 
 class Player(pygame.sprite.Sprite):
     colour = (0, 255, 0)
     mass = 1
+
     def __init__(self, x, y, width, height):
+        super().__init__()
         self.rect = pygame.Rect(x, y, width, height)
         self.x_velocity = 0
         self.y_velocity = 0
@@ -41,7 +56,8 @@ class Player(pygame.sprite.Sprite):
             self.animation_count = 0
 
     def loop(self, fps):
-        self.y_velocity += min(1, (self.falling / fps) * self.mass)
+        # self.y_velocity += min(1, (self.falling / fps) * self.mass)
+        self.y_velocity += (self.falling / fps) * self.mass
         self.move(self.x_velocity, self.y_velocity)
 
         self.falling += 1
