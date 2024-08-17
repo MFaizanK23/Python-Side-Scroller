@@ -4,12 +4,17 @@ import pygame
 
 # pygame setup
 pygame.init()
+<<<<<<< HEAD
 WIDTH, HEIGHT = 1280, 920
+=======
+WIDTH, HEIGHT = 1280, 900
+>>>>>>> 99048cb149b40ca381f87af5b78be10aeb842f6d
 FPS = 60
 player_velocity = 5
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Silly-Side-Scroller")
 player_pos = pygame.Vector2(40, 0)
+<<<<<<< HEAD
 
 
 class Entity(pygame.sprite.Sprite):
@@ -23,6 +28,8 @@ class Entity(pygame.sprite.Sprite):
 
     def draw(self, SCREEN):
         SCREEN.blit(self.image, (self.rect.x, self.rect.y))
+=======
+>>>>>>> 99048cb149b40ca381f87af5b78be10aeb842f6d
 
 
 class Player(pygame.sprite.Sprite):
@@ -55,15 +62,24 @@ class Player(pygame.sprite.Sprite):
             self.direction = "right"
             self.animation_count = 0
 
+<<<<<<< HEAD
     def loop(self, fps):
         # self.y_velocity += min(1, (self.falling / fps) * self.mass)
         self.y_velocity += (self.falling / fps) * self.mass
         self.move(self.x_velocity, self.y_velocity)
+=======
+    def gravity(self, fps):
+        if self.rect.y < 800:
+            self.y_velocity += min(1, (self.falling / fps) * self.mass)
+            self.move(self.x_velocity, self.y_velocity)
+            self.falling += .25
+        elif self.rect.y > 800:
+            self.move(self.x_velocity, 0)
+>>>>>>> 99048cb149b40ca381f87af5b78be10aeb842f6d
 
-        self.falling += 1
-
-    def draw(self, screen):
+    def obstacle(self, screen):
         pygame.draw.rect(screen, self.colour, self.rect)
+        pygame.draw.line(SCREEN, "black", (0, 845), (1280, 845))
 
 
 def get_background(name):
@@ -83,8 +99,7 @@ def draw(SCREEN, background, bg_image, player):
     for tile in background:
         SCREEN.blit(bg_image, tile)
 
-    player.draw(SCREEN)
-
+    player.obstacle(SCREEN)
     pygame.display.update()
 
 
@@ -114,9 +129,11 @@ def main(SCREEN):
                 running = False
                 break
 
-        player.loop(FPS)
+        player.gravity(FPS)
         handle_move(player)
+
         draw(SCREEN, background, bg_image, player)
+
 
     pygame.quit()
 
